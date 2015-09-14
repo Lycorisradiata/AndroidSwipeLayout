@@ -59,6 +59,15 @@ public class SwipeLayout extends FrameLayout {
     private boolean mSwipeEnabled = true;
     private boolean[] mSwipesEnabled = new boolean[]{true, true, true, true};
     private boolean mClickToClose = false;
+    private boolean mCancelClickEventInFlipping;
+
+    public boolean ismCancelClickEventInFlipping() {
+        return mCancelClickEventInFlipping;
+    }
+
+    public void setmCancelClickEventInFlipping(boolean mCancelClickEventInFlipping) {
+        this.mCancelClickEventInFlipping = mCancelClickEventInFlipping;
+    }
 
     public enum DragEdge {
         Left,
@@ -949,7 +958,7 @@ public class SwipeLayout extends FrameLayout {
     }
 
     private float sX = -1, sY = -1;
-
+    boolean hasMoveEvent;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (!isSwipeEnabled()) return super.onTouchEvent(event);
@@ -962,6 +971,7 @@ public class SwipeLayout extends FrameLayout {
                 mDragHelper.processTouchEvent(event);
                 sX = event.getRawX();
                 sY = event.getRawY();
+                hasMoveEvent = false;
 
 
             case MotionEvent.ACTION_MOVE: {
@@ -970,6 +980,7 @@ public class SwipeLayout extends FrameLayout {
                 if (mIsBeingDragged) {
                     getParent().requestDisallowInterceptTouchEvent(true);
                     mDragHelper.processTouchEvent(event);
+                    hasMoveEvent = true;
                 }
                 break;
             }
@@ -983,6 +994,9 @@ public class SwipeLayout extends FrameLayout {
                 mDragHelper.processTouchEvent(event);
         }
 
+        if(mCancelClickEventInFlipping && hasMoveEvent && action == MotionEvent.ACTION_UP){
+            event.setAction(MotionEvent.ACTION_CANCEL);
+        }
         return super.onTouchEvent(event) || mIsBeingDragged || action == MotionEvent.ACTION_DOWN;
     }
 
